@@ -15,20 +15,15 @@ struct RoutingResponse {
     pulsar_url: String,
 }
 
-async fn register() -> &'static str {
-    "Hello, World!"
-}
-
-async fn routing() -> &'static str {
-    "Hello, World!"
+async fn health() -> &'static str {
+    "OK"
 }
 
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/register", get(register))
-        .route("/routing", get(routing));
+        .route("/api/pulsar/health", get(health));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3456").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
