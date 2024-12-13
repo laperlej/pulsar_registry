@@ -2,7 +2,8 @@ use std::sync::Arc;
 use std::collections::HashMap;
 use std::sync::RwLock;
 use crate::data::{Pulsar, PulsarId, Email};
-use crate::pulsar_controller::IPulsarService;
+use crate::pulsar_controller::{IPulsarService, AppError};
+use axum::http::StatusCode;
 
 #[derive(Clone)]
 pub struct PulsarService {
@@ -19,33 +20,33 @@ impl PulsarService {
 
 impl IPulsarService for PulsarService {
 
-    fn search_pulsar(&self, email: Email) -> Result<Vec<Pulsar>, String> {
+    fn search_pulsar(&self, email: Email) -> Result<Vec<Pulsar>, AppError> {
         let pulsars = self.pulsars.read().unwrap();
         let user_pulsars = pulsars.iter().filter(|(_, pulsar)| pulsar.users.contains(&email)).map(|(_, pulsar)| pulsar.clone()).collect();
         Ok(user_pulsars)
     }
 
-    fn create_pulsar(&self, users: Vec<Email>, pulsar_url: String) -> Result<Pulsar, String> {
+    fn create_pulsar(&self, users: Vec<Email>, pulsar_url: String) -> Result<Pulsar, AppError> {
         let new_pulsar = Pulsar::new(pulsar_url, users);
         let id = new_pulsar.id.unwrap();
         self.pulsars.write().unwrap().insert(id, new_pulsar.clone());
         Ok(new_pulsar)
     }
 
-    fn get_pulsar(&self, _id: PulsarId) -> Result<Pulsar, String> {
+    fn get_pulsar(&self, _id: PulsarId) -> Result<Pulsar, AppError> {
         let pulsars = self.pulsars.read().unwrap();
         let maybe_pulsar = pulsars.get(&_id);
         match maybe_pulsar {
             Some(pulsar) => Ok(pulsar.clone()),
-            None => Err("".to_string())
+            None => Err(AppError::new(StatusCode::NOT_FOUND, "Pulsar not found".to_string()))
         }
     }
 
-    fn delete_pulsar(&self, id: PulsarId) -> Result<(), String> {
+    fn delete_pulsar(&self, id: PulsarId) -> Result<(), AppError> {
         let maybe_pulsar = self.pulsars.write().unwrap().remove(&id);
         match maybe_pulsar {
             Some(_) => Ok(()),
-            None => Err("".to_string())
+            None => Err(AppError::new(StatusCode::NOT_FOUND, "Pulsar not found".to_string()))
         }
     }
 }
@@ -60,7 +61,7 @@ fn setup() -> PulsarService {
 }
 
 fn create_test_email(id: u32) -> Email {
-    format!("test{}@example.com", id)
+    Email::new(format!("test{}@example.com", id).as_str()).unwrap()
 }
 
 #[test]
@@ -124,7 +125,8 @@ mod get_pulsar {
     #[test]
     fn test_get_nonexistent_pulsar() {
         let service = setup();
-        let result = service.get_pulsar(uuid::Uuid::now_v7());
+        let new_id = PulsarId::new();
+        let result = service.get_pulsar(new_id);
         assert!(result.is_err());
     }
 }
@@ -193,7 +195,8 @@ mod delete_pulsar {
     #[test]
     fn test_delete_nonexistent_pulsar() {
         let service = setup();
-        let result = service.delete_pulsar(uuid::Uuid::now_v7());
+        let new_id = PulsarId::new();
+        let result = service.delete_pulsar(new_id);
         assert!(result.is_err());
     }
 
