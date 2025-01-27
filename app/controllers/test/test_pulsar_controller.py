@@ -60,7 +60,7 @@ def test_pulsar(client):
 
 @pytest.fixture
 def client():
-    config = AppConfig()
+    config = AppConfig(test = True)
     app = create_app(config)
     client = TestClient(app)
     return client

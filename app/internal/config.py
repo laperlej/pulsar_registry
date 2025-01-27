@@ -6,7 +6,7 @@ def to_absolute_path(filename: str) -> str:
     return os.path.join(current_dir, filename)
 
 class AppConfig:
-    def __init__(self):
+    def __init__(self, test = False):
         config = configparser.ConfigParser()
         config_file_path = "config.ini"
         config.read(config_file_path)
@@ -14,7 +14,7 @@ class AppConfig:
         port = int(config["DEFAULT"]["Port"])
         request_body_limit = int(config["DEFAULT"]["RequestBodyLimit"])
         api_key_env = config["DEFAULT"]["ApiKeyEnv"]
-        in_memory = config["DEFAULT"]["InMemory"] == "true"
+        in_memory = True if test else config["DEFAULT"]["InMemory"] == "true"
         debug = config["DEFAULT"]["Debug"] == "true"
 
         self.server = ServerConfig(host, port, request_body_limit)
