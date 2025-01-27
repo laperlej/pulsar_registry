@@ -8,7 +8,7 @@ def to_absolute_path(filename: str) -> str:
 class AppConfig:
     def __init__(self, test = False):
         config = configparser.ConfigParser()
-        config_file_path = "config.ini"
+        config_file_path = "config.ini" if os.path.exists("config.ini") else "config.ini.sample"
         config.read(config_file_path)
         host = config["DEFAULT"]["Host"]
         port = int(config["DEFAULT"]["Port"])
