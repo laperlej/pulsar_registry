@@ -8,7 +8,7 @@ from internal.middlewares import token_verification as token_verification
 import uvicorn
 
 def create_app(config: AppConfig) -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(docs_url="/api/pulsar/docs")
 
     database = Database(config)
     app.state.db = database.connect()
