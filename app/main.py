@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.gzip import GZipMiddleware
-from app.internal.database import Database
-from app.controllers.pulsar_controller import router as pulsar_router
-from app.controllers.health_controller import router as health_router
-from app.internal.config import AppConfig
-from app.internal.middlewares import token_verification as token_verification
+from internal.database import Database
+from controllers.pulsar_controller import router as pulsar_router
+from controllers.health_controller import router as health_router
+from internal.config import AppConfig
+from internal.middlewares import token_verification as token_verification
 import uvicorn
 
 def create_app(config: AppConfig) -> FastAPI:
@@ -29,7 +29,7 @@ def main():
     addr = f"{config.server.host}:{config.server.port}"
     print(f"Listening on http://{addr}")
     uvicorn.run(
-        "app.main:app",
+        "main:app",
         host=config.server.host,
         port=config.server.port,
     )

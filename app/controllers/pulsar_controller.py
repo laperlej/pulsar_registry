@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Request, HTTPException
 from sqlalchemy import select
-from app.models.model import Pulsar, User
+from models.model import Pulsar, User
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()

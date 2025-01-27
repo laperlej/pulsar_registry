@@ -1,7 +1,7 @@
 import pytest
-from app.main import create_app
+from main import create_app
 from fastapi.testclient import TestClient
-from app.internal.config import AppConfig
+from internal.config import AppConfig
 from http import HTTPStatus
 
 def test_health(client):
@@ -17,7 +17,7 @@ def test_pulsar(client):
             "api_key": "1234567890",
             "users": ["test@test.com"]
         },
-        headers={"Authorization": "Bearer 1234567890"},
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"}
     )
 
     assert response.status_code == HTTPStatus.CREATED
@@ -26,7 +26,7 @@ def test_pulsar(client):
     # Get pulsar
     response = client.get(
         "/api/pulsar/1",
-        headers={"Authorization": "Bearer 1234567890"},
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"},
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
@@ -39,7 +39,7 @@ def test_pulsar(client):
     # Search pulsar
     response = client.get(
         "/api/pulsar?user=test@test.com",
-        headers={"Authorization": "Bearer 1234567890"},
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -53,7 +53,7 @@ def test_pulsar(client):
     # Delete pulsar
     response = client.delete(
         "/api/pulsar/1", 
-        headers={"Authorization": "Bearer 1234567890"},
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"}
     )
 
     assert response.status_code == HTTPStatus.NO_CONTENT

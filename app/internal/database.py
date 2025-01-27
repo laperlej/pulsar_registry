@@ -1,6 +1,6 @@
 from .config import AppConfig
 from sqlalchemy import create_engine
-from app.models.model import Base
+from models.model import Base
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
