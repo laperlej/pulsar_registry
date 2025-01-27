@@ -1,5 +1,5 @@
 [DEFAULT]
-Host = ::
+Host = 127.0.0.1
 Port = 3456
 RequestBodyLimit = 4096
 ApiKey = PULSAR_REGISTRY_KEY

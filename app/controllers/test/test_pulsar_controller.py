@@ -50,6 +50,33 @@ def test_pulsar(client):
         "users": ["test@test.com"]
     }]
 
+    # Update pulsar
+    response = client.put(
+        "/api/pulsar/1",
+        json={
+            "url": "http://localhost:9090",  # Changed URL
+            "api_key": "0987654321",         # Changed API key
+            "users": ["test@test.com", "new@test.com"]  # Added a user
+        },
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"}
+    )
+    
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {"id": 1}
+
+    # Verify update
+    response = client.get(
+        "/api/pulsar/1",
+        headers={"Authorization": "Bearer PULSAR_REGISTRY_KEY"}
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        "id": 1,
+        "url": "http://localhost:9090",
+        "api_key": "0987654321",
+        "users": ["test@test.com", "new@test.com"]
+    }
+
     # Delete pulsar
     response = client.delete(
         "/api/pulsar/1", 

@@ -70,6 +70,34 @@ async def create_pulsar(request: Request, pulsar: CreatePulsarBody) -> CreatePul
         session.refresh(new_pulsar)
         return CreatePulsarResponse(id=new_pulsar.id)
 
+@router.put("/api/pulsar/{pulsar_id}", status_code=HTTPStatus.OK)
+async def update_pulsar(request: Request, pulsar_id: int, pulsar: CreatePulsarBody) -> CreatePulsarResponse:
+    with request.app.state.db.get_session() as session:
+        # First, check if pulsar exists
+        result = session.execute(select(Pulsar).where(Pulsar.id == pulsar_id))
+        existing_pulsar = result.scalar_one_or_none()
+        if existing_pulsar is None:
+            raise HTTPException(status_code=404, detail="Pulsar not found")
+
+        # Process users
+        users = []
+        for email in pulsar.users:
+            result = session.execute(select(User).where(User.email == email))
+            user = result.scalar_one_or_none()
+            if user is None:
+                user = User(email=email)
+                session.add(user)
+            users.append(user)
+        
+        # Update existing pulsar
+        existing_pulsar.url = pulsar.url
+        existing_pulsar.api_key = pulsar.api_key
+        existing_pulsar.users = users
+        
+        session.commit()
+        session.refresh(existing_pulsar)
+        return CreatePulsarResponse(id=existing_pulsar.id)
+
 class DeleteResponse(BaseModel):
     pulsar_id: int
 
