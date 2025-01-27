@@ -13,12 +13,12 @@ class AppConfig:
         host = config["DEFAULT"]["Host"]
         port = int(config["DEFAULT"]["Port"])
         request_body_limit = int(config["DEFAULT"]["RequestBodyLimit"])
-        api_key_env = config["DEFAULT"]["ApiKeyEnv"]
+        api_key = config["DEFAULT"]["ApiKey"]
         in_memory = True if test else config["DEFAULT"]["InMemory"] == "true"
         debug = config["DEFAULT"]["Debug"] == "true"
 
         self.server = ServerConfig(host, port, request_body_limit)
-        self.auth = AuthConfig(api_key_env)
+        self.auth = AuthConfig(api_key)
         self.database = DatabaseConfig(to_absolute_path(config["DEFAULT"]["DatabasePath"]), in_memory, debug)
 
 class DatabaseConfig: 
@@ -28,11 +28,8 @@ class DatabaseConfig:
         self.debug = debug
 
 class AuthConfig: 
-    def __init__(self, env):
-        try:
-            self.bearer_token = get_env_var(env)
-        except ValueError:
-            self.bearer_token = None
+    def __init__(self, api_key):
+        self.bearer_token = api_key
 
 class ServerConfig: 
     def __init__(self, host, port, request_body_limit):
