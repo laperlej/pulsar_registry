@@ -14,6 +14,7 @@ class GetPulsarResponse(BaseModel):
 
 @router.get("/api/pulsar/{id}", status_code=HTTPStatus.OK)
 async def get_pulsar(request: Request, id: int) -> GetPulsarResponse:
+    print(f"Get pulsar {id}")
     with request.app.state.db.get_session() as session:
         result = session.execute(select(Pulsar).where(Pulsar.id == id))
         pulsar = result.scalar_one_or_none()
@@ -29,6 +30,7 @@ async def get_pulsar(request: Request, id: int) -> GetPulsarResponse:
 
 @router.get("/api/pulsar", status_code=HTTPStatus.OK)
 async def search_pulsar(request: Request, user = None):
+    print(f"Search pulsar {user}")
     if user is None:
         raise HTTPException(status_code=400, detail="User not provided")
     with request.app.state.db.get_session() as session:
@@ -53,6 +55,7 @@ class CreatePulsarResponse(BaseModel):
 
 @router.post("/api/pulsar", status_code=HTTPStatus.CREATED)
 async def create_pulsar(request: Request, pulsar: CreatePulsarBody) -> CreatePulsarResponse:
+    print(f"Create pulsar {pulsar}")
     with request.app.state.db.get_session() as session:
         users = session.query(User).filter(User.email.in_(pulsar.users)).all()
         users = []
@@ -80,6 +83,7 @@ async def create_pulsar(request: Request, pulsar: CreatePulsarBody) -> CreatePul
 
 @router.put("/api/pulsar/{pulsar_id}", status_code=HTTPStatus.OK)
 async def update_pulsar(request: Request, pulsar_id: int, pulsar: CreatePulsarBody) -> CreatePulsarResponse:
+    print(f"Update pulsar {pulsar_id} {pulsar}")
     with request.app.state.db.get_session() as session:
         # First, check if pulsar exists
         result = session.execute(select(Pulsar).where(Pulsar.id == pulsar_id))
@@ -116,6 +120,7 @@ class DeleteResponse(BaseModel):
 
 @router.delete("/api/pulsar/{pulsar_id}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_pulsar(request: Request, pulsar_id: int):
+    print(f"Delete pulsar {pulsar_id}")
     with request.app.state.db.get_session() as session:
         result = session.execute(select(Pulsar).where(Pulsar.id == pulsar_id))
         pulsar = result.scalar_one_or_none()
