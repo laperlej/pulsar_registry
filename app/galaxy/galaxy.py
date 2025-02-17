@@ -76,6 +76,7 @@ class Galaxy:
             self.conn.commit()
         except Exception as e:
             print(f"Failed to update pulsar for {user.email}: {e}")
+            self.conn.rollback()
     
     def remove_pulsar(self, user):
         try:
@@ -84,3 +85,4 @@ class Galaxy:
             self.conn.commit()
         except Exception as e:
             print(f"Failed to remove pulsar for {user.email}: {e}")
+            self.conn.rollback()
