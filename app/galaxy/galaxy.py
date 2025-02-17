@@ -85,9 +85,8 @@ class Galaxy:
             self._upsert_user_preference(cur, user, pulsar)
             self.conn.commit()
         except Exception as e:
-            print(f"Failed to update pulsar for {user.email}: {e}")
             self.conn.rollback()
-            raise e
+            raise Exception(f"Failed to update pulsar for {user.email}: {e}")
     
     def remove_pulsar(self, user):
         try:
@@ -98,6 +97,5 @@ class Galaxy:
             self._remove_user_preference(cur, user)
             self.conn.commit()
         except Exception as e:
-            print(f"Failed to remove pulsar for {user.email}: {e}")
             self.conn.rollback()
-            raise e
+            raise Exception(f"Failed to remove pulsar for {user.email}: {e}")
