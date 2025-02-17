@@ -16,10 +16,10 @@ class Galaxy:
     def _get_user_preference(self, cur, user):
         print(f"Getting user preference for {user.email}")
         cur.execute("""
-            SELECT * FROM user_preference WHERE user_id = (
-                SELECT id FROM galaxy_user WHERE email = %s
-            )
-        """, (user.email))
+            SELECT * 
+            FROM user_preference 
+            WHERE user_id = (SELECT id FROM galaxy_user WHERE email = %s)
+        """, [user.email])
         return cur.fetchone()
     
     def _update_user_preference(self, cur, user, pulsar):
@@ -28,9 +28,9 @@ class Galaxy:
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
         cur.execute("""
-            UPDATE user_preference SET value = %s WHERE user_id = (
-                SELECT id FROM galaxy_user WHERE email = %s
-            )
+            UPDATE user_preference 
+            SET value = %s 
+            WHERE user_id = (SELECT id FROM galaxy_user WHERE email = %s)
         """, (
             value,
             user.email
