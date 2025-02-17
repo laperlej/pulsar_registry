@@ -44,7 +44,7 @@ async def search_pulsar(request: Request, user = None):
 class CreatePulsarBody(BaseModel):
     url: str
     api_key: str
-    users: list[EmailStr]
+    users: list[str]
 
     model_config = {"from_attributes": True}
 
