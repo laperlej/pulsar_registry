@@ -25,8 +25,8 @@ class Worker(threading.Thread):
                         try:
                             self._process_task(session, task)
                             self._mark_task_complete(task)
-                        except:
-                            print(f"Failed to process task: {task}")
+                        except Exception as e:
+                            print(f"Failed to process task: {task}: {e}")
                     session.commit()
             except EmptyOutboxException:
                 continue  # No task available, loop again
