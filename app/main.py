@@ -5,6 +5,7 @@ from controllers.pulsar_controller import router as pulsar_router
 from controllers.health_controller import router as health_router
 from internal.config import AppConfig
 from internal.middlewares import token_verification as token_verification
+from worker.worker import Worker
 import uvicorn
 
 def create_app(config: AppConfig) -> FastAPI:
@@ -25,14 +26,21 @@ config = AppConfig()
 app = create_app(config)
 
 def main():
+    worker = Worker(app, galaxy=None)
+    worker.start()
+    worker.join()
 
     addr = f"{config.server.host}:{config.server.port}"
     print(f"Listening on http://{addr}")
-    uvicorn.run(
-        "main:app",
-        host=config.server.host,
-        port=config.server.port,
-    )
+    try:
+        uvicorn.run(
+            "main:app",
+            host=config.server.host,
+            port=config.server.port,
+        )
+    except:
+        worker.stop()
+        raise 
 
 if __name__ == "__main__":
     main()

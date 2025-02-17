@@ -6,3 +6,4 @@ ApiKey = PULSAR_REGISTRY_KEY
 DatabasePath = ~/pulsar_registry.db
 InMemory = true
 Debug = true
+GalaxyDatabase = test

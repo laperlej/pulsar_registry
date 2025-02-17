@@ -16,10 +16,12 @@ class AppConfig:
         api_key = config["DEFAULT"]["ApiKey"]
         in_memory = True if test else config["DEFAULT"]["InMemory"] == "true"
         debug = config["DEFAULT"]["Debug"] == "true"
+        galaxy_database = config["DEFAULT"]["GalaxyDatabase"]
 
         self.server = ServerConfig(host, port, request_body_limit)
         self.auth = AuthConfig(api_key)
         self.database = DatabaseConfig(to_absolute_path(config["DEFAULT"]["DatabasePath"]), in_memory, debug)
+        self.galaxy_database = galaxy_database
 
 class DatabaseConfig: 
     def __init__(self, path, in_memory=False, debug=False):

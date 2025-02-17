@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Request, HTTPException
 from sqlalchemy import select
-from models.model import Pulsar, User
+from models.model import Pulsar, User, Outbox, Message
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
@@ -63,11 +63,19 @@ async def create_pulsar(request: Request, pulsar: CreatePulsarBody) -> CreatePul
                 user = User(email=email)
                 session.add(user)
             users.append(user)
+        session.flush()
         
+        # Create new pulsar
         new_pulsar = Pulsar(url=pulsar.url, api_key=pulsar.api_key, users=users)
         session.add(new_pulsar)
+        session.flush()
+
+        # Create new outbox
+        for user in new_pulsar.users:
+            new_outbox = Outbox(message=Message.CREATED, user_id=user.id, pulsar_id=new_pulsar.id)
+            session.add(new_outbox)
+
         session.commit()
-        session.refresh(new_pulsar)
         return CreatePulsarResponse(id=new_pulsar.id)
 
 @router.put("/api/pulsar/{pulsar_id}", status_code=HTTPStatus.OK)
@@ -94,6 +102,11 @@ async def update_pulsar(request: Request, pulsar_id: int, pulsar: CreatePulsarBo
         existing_pulsar.api_key = pulsar.api_key
         existing_pulsar.users = users
         
+        # Create new outbox
+        for user in existing_pulsar.users:
+            new_outbox = Outbox(message=Message.CREATED, user_id=user.id, pulsar_id=existing_pulsar.id)
+            session.add(new_outbox)
+
         session.commit()
         session.refresh(existing_pulsar)
         return CreatePulsarResponse(id=existing_pulsar.id)
@@ -108,7 +121,15 @@ async def delete_pulsar(request: Request, pulsar_id: int):
         pulsar = result.scalar_one_or_none()
         if pulsar is None:
             raise HTTPException(status_code=404, detail="Pulsar not found")
+
+        # create new outbox
+        for user in pulsar.users:
+            new_outbox = Outbox(message=Message.DELETED, user_id=user.id, pulsar_id=pulsar.id)
+            session.add(new_outbox)
+
+        # Delete pulsar
         session.delete(pulsar)
+
         session.commit()
         return None 
 
