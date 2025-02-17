@@ -13,6 +13,13 @@ class Galaxy:
     def __init__(self, config):
         self.conn = psycopg2.connect(config.galaxy_database)
 
+    def _get_user_id(self, cur, email):
+        print(f"Getting user id for {email}")
+        cur.execute("""
+            SELECT id FROM galaxy_user WHERE email = %s
+        """, [email])
+        return cur.fetchone()
+
     def _get_user_preference(self, cur, user):
         print(f"Getting user preference for {user.email}")
         cur.execute("""
@@ -72,6 +79,9 @@ class Galaxy:
     def update_pulsar(self, user, pulsar):
         try:
             cur = self.conn.cursor()
+            user_id = self._get_user_id(cur, user.email)
+            if user_id is None:
+                raise Exception(f"User {user.email} not found")
             self._upsert_user_preference(cur, user, pulsar)
             self.conn.commit()
         except Exception as e:
@@ -81,6 +91,9 @@ class Galaxy:
     def remove_pulsar(self, user):
         try:
             cur = self.conn.cursor()
+            user_id = self._get_user_id(cur, user.email)
+            if user_id is None:
+                raise Exception(f"User {user.email} not found")
             self._remove_user_preference(cur, user)
             self.conn.commit()
         except Exception as e:
