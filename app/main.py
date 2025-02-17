@@ -36,7 +36,7 @@ def main():
     try:
         uvicorn.run(
             "main:app",
-            log_level="trace",
+            log_level="info",
             host=config.server.host,
             port=config.server.port,
         )
