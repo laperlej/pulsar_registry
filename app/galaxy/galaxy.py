@@ -13,7 +13,31 @@ class Galaxy:
     def __init__(self, config):
         self.conn = psycopg2.connect(config.galaxy_database)
 
-    def _upsert_user_preference(self, user, pulsar):
+    def _get_user_preference(self, cur, user):
+        cur = self.conn.cursor()
+        cur.execute("""
+            SELECT * FROM user_preference WHERE user_id = (
+                SELECT id FROM galaxy_user WHERE email = %s
+            )
+        """, (user.email))
+        return cur.fetchone()
+    
+    def _update_user_preference(self, cur, user, pulsar):
+        value = json.dumps({
+            "accp|pulsar_host": pulsar.url, 
+            "accp|pulsar_api_key": pulsar.api_key})
+        cur = self.conn.cursor()
+        cur.execute("""
+            UPDATE user_preference SET value = %s WHERE user_id = (
+                SELECT id FROM galaxy_user WHERE email = %s
+            )
+        """, (
+            value,
+            user.email
+        ))
+        self.conn.commit()
+
+    def _insert_user_preference(self, cur, user, pulsar):
         value = json.dumps({
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
@@ -25,31 +49,38 @@ class Galaxy:
                 %s, 
                 %s
             )
-            ON CONFLICT (user_id, name) DO UPDATE SET value = EXCLUDED.value
         """, (
             user.email, 
             "extra_user_preferences",
             value
         ))
-        self.conn.commit()
 
-    def _remove_user_preference(self, user):
-        cur = self.conn.cursor()
+    def _upsert_user_preference(self, cur, user, pulsar):
+        existing_preference = self._get_user_preference(cur, user)
+        if existing_preference is None:
+            self._insert_user_preference(cur, user, pulsar)
+        else:
+            self._update_user_preference(cur, user, pulsar)
+
+    def _remove_user_preference(self, cur, user):
         cur.execute("""
             DELETE FROM user_preference WHERE user_id = (
                 SELECT id FROM galaxy_user WHERE email = %s
             )
         """, (user.email))
-        self.conn.commit()
     
     def update_pulsar(self, user, pulsar):
         try:
-            self._upsert_user_preference(user, pulsar)
+            cur = self.conn.cursor()
+            self._upsert_user_preference(cur, user, pulsar)
+            self.conn.commit()
         except Exception as e:
             print(f"Failed to update pulsar for {user.email}: {e}")
     
     def remove_pulsar(self, user):
         try:
-            self._remove_user_preference(user)
+            cur = self.conn.cursor()
+            self._remove_user_preference(cur, user)
+            self.conn.commit()
         except Exception as e:
             print(f"Failed to remove pulsar for {user.email}: {e}")
