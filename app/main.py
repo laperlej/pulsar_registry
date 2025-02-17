@@ -30,7 +30,6 @@ def main():
     galaxy = Galaxy(config)
     worker = Worker(app, galaxy)
     worker.start()
-    worker.join()
 
     addr = f"{config.server.host}:{config.server.port}"
     print(f"Listening on http://{addr}")
@@ -42,6 +41,7 @@ def main():
             port=config.server.port,
         )
     except:
+        worker.join()
         worker.stop()
         raise 
 
