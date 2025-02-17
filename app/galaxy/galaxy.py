@@ -26,7 +26,6 @@ class Galaxy:
         value = json.dumps({
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
-        cur = self.conn.cursor()
         cur.execute("""
             UPDATE user_preference SET value = %s WHERE user_id = (
                 SELECT id FROM galaxy_user WHERE email = %s
@@ -35,13 +34,11 @@ class Galaxy:
             value,
             user.email
         ))
-        self.conn.commit()
 
     def _insert_user_preference(self, cur, user, pulsar):
         value = json.dumps({
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
-        cur = self.conn.cursor()
         cur.execute("""
             INSERT INTO user_preference (user_id, name, value) 
             VALUES (
