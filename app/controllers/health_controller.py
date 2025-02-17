@@ -6,7 +6,6 @@ router = APIRouter()
 
 @router.get("/api/pulsar/health", status_code=HTTPStatus.OK)
 async def health() -> str:
-    print("Health check")
     return "OK"
 
 class HealthControllerTests(unittest.IsolatedAsyncioTestCase):
