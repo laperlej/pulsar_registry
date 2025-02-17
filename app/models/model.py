@@ -7,21 +7,6 @@ class Base(DeclarativeBase):
     pass
 
 
-class TimestampMixin:
-    """Mixin to add created_at, updated_at, and deleted_at timestamps."""
-    
-    @declared_attr
-    def created_at(cls):
-        return Column(DateTime, nullable=False, server_default=func.now())
-    
-    @declared_attr
-    def updated_at(cls):
-        return Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
-    
-    @declared_attr
-    def deleted_at(cls):
-        return Column(DateTime, nullable=True)  # Nullable for soft deletes
-
 # Association table for the many-to-many relationship
 pulsar_user = Table(
     "pulsar_user",
@@ -30,7 +15,7 @@ pulsar_user = Table(
     Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
 )
 
-class User(Base, TimestampMixin):
+class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True)
@@ -43,7 +28,7 @@ class User(Base, TimestampMixin):
     def __repr__(self):
         return f"<User {self.email}>"
 
-class Pulsar(Base, TimestampMixin):
+class Pulsar(Base):
     __tablename__ = "pulsars"
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(255))
@@ -62,12 +47,13 @@ class Message(enum.Enum):
     UPDATED = "UPDATED"
     DELETED = "DELETED"
 
-class Outbox(Base, TimestampMixin):
+class Outbox(Base):
     __tablename__ = "outbox"
     id: Mapped[int] = mapped_column(primary_key=True)
     message: Mapped[Message] = mapped_column(Enum(Message))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     pulsar_id: Mapped[int] = mapped_column(ForeignKey("pulsars.id", ondelete="CASCADE"))
+    deleted_at: Mapped[DateTime] = mapped_column(DateTime)
 
 
     def __repr__(self):
