@@ -42,7 +42,7 @@ class Worker(threading.Thread):
 
     def _process_task(self, session, task):
         print(f"Processing task: {task}")
-        result = session.query(Pulsar).filter().order_by(Pulsar.id).limit(1)
+        result = session.execute(select(Pulsar).filter().order_by(Pulsar.id).limit(1))
         pulsar = result.scalar_one_or_none()
         user = session.query(User).filter(User.id == task.user_id).one()
         if pulsar is None:
