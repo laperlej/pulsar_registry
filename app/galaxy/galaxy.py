@@ -25,7 +25,7 @@ class Galaxy:
                 %s, 
                 %s
             )
-            ON CONFLICT (user_id, name) DO UPDATE SET value = %s
+            ON CONFLICT (user_id, name) DO UPDATE SET value = EXCLUDED.value
         """, (
             user.email, 
             "extra_user_preferences",
