@@ -17,7 +17,7 @@ class Worker(threading.Thread):
 
     def run(self):
         while not self.stop_event.is_set():  # Keep running until stop_event is set
-            time.sleep(300)  # Sleep for a bit
+            time.sleep(60)  # Sleep for a bit
             try:
                 with self.app.state.db.get_session() as session:
                     tasks = self._get_tasks(session)

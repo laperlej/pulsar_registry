@@ -41,8 +41,8 @@ def main():
             port=config.server.port,
         )
     except:
-        worker.join()
         worker.stop()
+        worker.join()
         raise 
 
 if __name__ == "__main__":
