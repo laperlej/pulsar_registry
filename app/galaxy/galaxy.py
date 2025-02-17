@@ -46,7 +46,7 @@ class Galaxy:
         try:
             self._upsert_user_preference(user, pulsar)
         except Exception as e:
-            print(f"Failed to remove pulsar for {user.email}: {e}")
+            print(f"Failed to update pulsar for {user.email}: {e}")
     
     def remove_pulsar(self, user):
         try:
