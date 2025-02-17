@@ -6,6 +6,7 @@ from controllers.health_controller import router as health_router
 from internal.config import AppConfig
 from internal.middlewares import token_verification as token_verification
 from worker.worker import Worker
+from galaxy.galaxy import Galaxy
 import uvicorn
 
 def create_app(config: AppConfig) -> FastAPI:
@@ -26,7 +27,8 @@ config = AppConfig()
 app = create_app(config)
 
 def main():
-    worker = Worker(app, galaxy=None)
+    galaxy = Galaxy(config)
+    worker = Worker(app, galaxy)
     worker.start()
     worker.join()
 
