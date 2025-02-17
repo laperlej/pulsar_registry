@@ -14,7 +14,7 @@ class Galaxy:
         self.conn = psycopg2.connect(config.galaxy_database)
 
     def _get_user_preference(self, cur, user):
-        cur = self.conn.cursor()
+        print(f"Getting user preference for {user.email}")
         cur.execute("""
             SELECT * FROM user_preference WHERE user_id = (
                 SELECT id FROM galaxy_user WHERE email = %s
@@ -23,6 +23,7 @@ class Galaxy:
         return cur.fetchone()
     
     def _update_user_preference(self, cur, user, pulsar):
+        print(f"Updating user preference for {user.email}")
         value = json.dumps({
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
@@ -36,6 +37,7 @@ class Galaxy:
         ))
 
     def _insert_user_preference(self, cur, user, pulsar):
+        print(f"Inserting user preference for {user.email}")
         value = json.dumps({
             "accp|pulsar_host": pulsar.url, 
             "accp|pulsar_api_key": pulsar.api_key})
@@ -60,6 +62,7 @@ class Galaxy:
             self._update_user_preference(cur, user, pulsar)
 
     def _remove_user_preference(self, cur, user):
+        print(f"Removing user preference for {user.email}")
         cur.execute("""
             DELETE FROM user_preference WHERE user_id = (
                 SELECT id FROM galaxy_user WHERE email = %s
