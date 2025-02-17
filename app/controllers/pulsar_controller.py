@@ -54,12 +54,14 @@ class CreatePulsarResponse(BaseModel):
 @router.post("/api/pulsar", status_code=HTTPStatus.CREATED)
 async def create_pulsar(request: Request, pulsar: CreatePulsarBody) -> CreatePulsarResponse:
     with request.app.state.db.get_session() as session:
+        print(f"Creating pulsar: {pulsar}")
         users = session.query(User).filter(User.email.in_(pulsar.users)).all()
         users = []
         for email in pulsar.users:
             result = session.execute(select(User).where(User.email == email))
             user = result.scalar_one_or_none()
             if user is None:
+                print(f"Creating user: {email}")
                 user = User(email=email)
                 session.add(user)
             users.append(user)
