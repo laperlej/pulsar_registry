@@ -53,7 +53,7 @@ class Outbox(Base):
     message: Mapped[Message] = mapped_column(Enum(Message))
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     pulsar_id: Mapped[int] = mapped_column(ForeignKey("pulsars.id", ondelete="CASCADE"))
-    deleted_at: Mapped[DateTime] = mapped_column(DateTime)
+    deleted_at: Mapped[DateTime] = mapped_column(DateTime, nullable=True, default=None)
 
 
     def __repr__(self):
