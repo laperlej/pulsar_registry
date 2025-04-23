@@ -22,7 +22,8 @@ class Database:
             self._get_connection_string(),
             echo=self.debug,
             poolclass=StaticPool,
-            connect_args={"check_same_thread": False}
+            connect_args={"check_same_thread": False},
+            pool_pre_ping=True
         )
         Base.metadata.create_all(self.engine)
         return self
